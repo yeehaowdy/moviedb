@@ -22,15 +22,6 @@ export default function App() {
         <Route path='/search' element={<SearchPage />} />
       </Route>
     </Routes>
-
-    <ContentPagination></ContentPagination>
-    <Genres></Genres>
-    <MyBottomNav></MyBottomNav>
-    <MyCard></MyCard>
-    <MyLayout></MyLayout>
-    <MySpinner></MySpinner>
-    <PageLayout></PageLayout>
-    <SingleChip></SingleChip>
   </>
   )
 }
