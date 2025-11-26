@@ -3,21 +3,28 @@ import { getGenres } from '../utils'
 import { Stack } from '@mui/material'
 import { SingleChip } from './SingleChip'
 
-export const Genres = ({type,selectedGenres,setSelectedGenres}) => {
+export const Genres = ({ type, selectedGenres, setSelectedGenres }) => {
     const [data, setData] = useState(null)
 
-    // TODO use getGenres
+    useEffect(() => {
+        getGenres(type).then(result => {
+            setData(result)    
+        })
+    }, [type])
 
-    data && console.log(data.genres);
-    
-    console.log(selectedGenres);
-    
-  return (
-    <Stack direction='row' flexWrap='wrap' justifyContent='center'>  
-        {data && data.genres.map(obj=>
-            <SingleChip key={obj.id} {...obj} selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres} />
-        )}
-    </Stack>
-  )
+    return (
+        <Stack direction='row' flexWrap='wrap' justifyContent='center'>
+            {data &&
+                data.genres.map(genreObj => (
+                    <SingleChip
+                        key={genreObj.id}
+                        id={genreObj.id}
+                        name={genreObj.name}
+                        selectedGenres={selectedGenres}
+                        setSelectedGenres={setSelectedGenres}
+                    />
+                ))
+            }
+        </Stack>
+    )
 }
-
