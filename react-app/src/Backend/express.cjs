@@ -1,54 +1,76 @@
 const express = require("express");
-const fetch = require("node-fetch");
+const fetch = (...args) => import("node-fetch").then(({default: fetch}) => fetch(...args));
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
 
-const PORT = process.env.PORT || 3333;
+const metadata = require("../../tmdb-metadata.cjs");
 
-const TMDB_BEARER = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMWJlMTg3OGI4MDg3OTUwMDgxNThkYzFiNzYxMThmYiIsIm5iZiI6MTc2NDA2Njg0OC41NjQ5OTk4LCJzdWIiOiI2OTI1ODYyMGVjN2IyMTAwNmVkOWMzYWEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.wbWS-dgSjlECkEiaPmhbnrChoP8xEs_9GCAf4rMa8Eo";
+let TMDB_BEARER = null;
 
-const TMDB_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: TMDB_BEARER,
-  },
-};
+async function initTmdb() {
+  const result = await metadata.handler();
+  if (result.error) {
+    console.error("TMDB metadata error:", result.error);
+    return;
+  }
+  TMDB_BEARER = `Bearer ${result.apiKey}`;
+  console.log("✅ TMDB Bearer betöltve:", TMDB_BEARER.substring(0, 20) + "...");
+}
+
+initTmdb();
+
+function getTmdbOptions() {
+  return {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: TMDB_BEARER
+    }
+  };
+}
+
 
 app.get("/genres", async (req, res) => {
-  const type = req.query.type === "tv" ? "tv" : "movie";
+  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
+
+  const type = req.query.type || "movie";
 
   try {
     const response = await fetch(
       `https://api.themoviedb.org/3/genre/${type}/list?language=en`,
-      TMDB_OPTIONS
+      getTmdbOptions()
     );
     const data = await response.json();
-    return res.json(data.genres);
+    res.json(data.genres);
   } catch (err) {
     console.error("Genre fetch error:", err);
-    return res.status(500).json({ error: "Genre fetch failed" });
+    res.status(500).json({ error: "Genre fetch failed" });
   }
 });
 
+
 app.get("/movies", async (req, res) => {
-  const type = req.query.type === "tv" ? "tv" : "movie";
+  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
+
+  const type = req.query.type || "movie";
   const page = req.query.page || 1;
   const genres = req.query.genres || "";
 
   const url = `https://api.themoviedb.org/3/discover/${type}?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc&page=${page}&with_genres=${genres}`;
 
   try {
-    const response = await fetch(url, TMDB_OPTIONS);
+    const response = await fetch(url, getTmdbOptions());
     const data = await response.json();
-    return res.json(data);
+    res.json(data);
   } catch (err) {
     console.error("Movie fetch error:", err);
-    return res.status(500).json({ error: "Movie fetch failed" });
+    res.status(500).json({ error: "Movie fetch failed" });
   }
 });
+
+const PORT = 3333
 
 app.listen(PORT, () => {
   console.log("Backend fut: http://localhost:" + PORT);

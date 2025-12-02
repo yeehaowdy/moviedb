@@ -1,4 +1,3 @@
-// MyBottomNav.jsx
 import * as React from "react";
 import Box from "@mui/material/Box";
 import BottomNavigation from "@mui/material/BottomNavigation";
@@ -11,7 +10,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 export const MyBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // map path -> index
   const pathToIndex = (path) => {
     if (path.startsWith("/tvseries")) return 1;
     if (path.startsWith("/search")) return 2;
@@ -28,7 +26,6 @@ export const MyBottomNav = () => {
   };
 
   React.useEffect(() => {
-    // update tab if route changed externally
     setValue(pathToIndex(location.pathname));
   }, [location.pathname]);
 

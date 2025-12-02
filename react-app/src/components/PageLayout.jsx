@@ -1,4 +1,3 @@
-// PageLayout.jsx
 import { Box, Container, Typography } from "@mui/material";
 import React from "react";
 import { ContentPagination } from "./ContentPagination";
@@ -12,7 +11,7 @@ export const PageLayout = ({ title, page, setPage, type = "movie", selectedGenre
         background: "linear-gradient(to right, #082f49, #075985)",
         color: "white",
         minHeight: "100vh",
-        paddingBottom: "80px", // hely a bottom nav-nek
+        paddingBottom: "80px", 
       }}
     >
       <Typography
@@ -31,15 +30,12 @@ export const PageLayout = ({ title, page, setPage, type = "movie", selectedGenre
         {title}
       </Typography>
 
-      {/* Műfajok */}
       <Box sx={{ mt: 2 }}>
         <Genres type={type} selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres} />
       </Box>
 
-      {/* Gyermek tartalom (pl. film grid) */}
       <Box sx={{ mt: 2 }}>{children}</Box>
 
-      {/* Oldallapozó */}
       <Box display="flex" justifyContent="center" sx={{ paddingBottom: "60px", mt: 4 }}>
         <ContentPagination page={page} setPage={setPage} />
       </Box>

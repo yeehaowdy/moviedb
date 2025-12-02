@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getGenres } from '../utils'
+import { getGenres } from '../../utils.js'
 import { Stack } from '@mui/material'
 import { SingleChip } from './SingleChip'
 

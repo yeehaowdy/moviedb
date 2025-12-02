@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { PageLayout } from "../components/PageLayout";
 import { Grid } from "@mui/material";
-import { getData } from "../utils";
+import { getData } from "../../utils";
 import { MyCard } from "../components/MyCard";
 import { MySpinner } from "../components/MySpinner";
 
@@ -13,7 +13,6 @@ export const Movies = (props) => {
   const [isLoading, setLoading] = useState(false);
   const type = "movie";
 
-  // Kiajánlott: debouncing vagy React Query — itt egyszerű useEffect
   useEffect(() => {
     let cancelled = false;
 
