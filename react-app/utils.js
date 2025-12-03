@@ -1,43 +1,28 @@
-const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:3333";
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "";
 
 export const getData = async ({ queryKey }) => {
-  const [mode = "discover", type = "movie", page = 1, selectedGenres = [], query = ""] = queryKey;
-
-  const genresParam = (Array.isArray(selectedGenres) && selectedGenres.length > 0)
-    ? selectedGenres.join(",")
-    : "";
-
-  let url = `${BACKEND}/movies?type=${type}&page=${page}&genres=${genresParam}`;
-
-  if (mode === "search" && query) {
-    url += `&query=${encodeURIComponent(query)}`;
-  }
-
-  console.log("getData url:", url);
-
+  const [, type = "movie", page = 1, selectedGenres = []] = queryKey;
+  const genresParam = Array.isArray(selectedGenres) && selectedGenres.length ? selectedGenres.join(",") : "";
+  const url = `${BACKEND}/.netlify/functions/api/movies?type=${type}&page=${page}&genres=${genresParam}`;
   const resp = await fetch(url);
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(`Backend /movies error: ${resp.status} ${text}`);
-  }
+  if (!resp.ok) throw new Error(await resp.text());
   return await resp.json();
 };
 
-
 export const getGenres = async ({ queryKey }) => {
   const [, type = "movie"] = queryKey;
-
-  const url = `${BACKEND}/genres?type=${type}`;
-  console.log("getGenres url:", url);
-
+  const url = `${BACKEND}/.netlify/functions/api/genres?type=${type}`;
   const resp = await fetch(url);
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(`Backend /genres error: ${resp.status} ${text}`);
-  }
-
+  if (!resp.ok) throw new Error(await resp.text());
   const genres = await resp.json();
   return { genres };
+};
+
+export const searchData = async (query = "", page = 1) => {
+  const url = `${BACKEND}/.netlify/functions/api/search?query=${encodeURIComponent(query)}&page=${page}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(await resp.text());
+  return await resp.json();
 };
 
 export const img_300 = "https://image.tmdb.org/t/p/w300";

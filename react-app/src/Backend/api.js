@@ -1,10 +1,9 @@
 const express = require("express");
 const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
-const cors = require("cors");
 const metadata = require("../../tmdb-metadata.cjs");
 
 const app = express();
-app.use(cors());
+app.use(express.json());
 
 let TMDB_BEARER = null;
 
@@ -15,15 +14,9 @@ async function initTmdb() {
     return;
   }
   TMDB_BEARER = `Bearer ${result.apiKey}`;
-  console.log("✅ TMDB Bearer betöltve:", TMDB_BEARER.substring(0, 20) + "...");
+  console.log("✅ TMDB Bearer loaded:", TMDB_BEARER.substring(0, 20) + "...");
 }
-
-app.use(async (req, res, next) => {
-  if (!TMDB_BEARER) {
-    await initTmdb();
-  }
-  next();
-});
+initTmdb();
 
 function getTmdbOptions() {
   return {
@@ -35,7 +28,9 @@ function getTmdbOptions() {
   };
 }
 
+// Genres
 app.get("/genres", async (req, res) => {
+  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
   const type = req.query.type || "movie";
   try {
     const response = await fetch(`https://api.themoviedb.org/3/genre/${type}/list?language=en`, getTmdbOptions());
@@ -47,7 +42,10 @@ app.get("/genres", async (req, res) => {
   }
 });
 
+// Movies / TV discover
 app.get("/movies", async (req, res) => {
+  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
+
   const type = req.query.type || "movie";
   const page = req.query.page || 1;
   const genres = req.query.genres || "";
@@ -64,12 +62,21 @@ app.get("/movies", async (req, res) => {
   }
 });
 
+// Search
 app.get("/search", async (req, res) => {
+  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
+
   const query = req.query.query || "";
   const page = req.query.page || 1;
 
   try {
-    const url = `https://api.themoviedb.org/3/search/movie?language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
+    let url;
+    if (!query) {
+      url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=original_title.asc&page=${page}`;
+    } else {
+      url = `https://api.themoviedb.org/3/search/multi?language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
+    }
+
     const response = await fetch(url, getTmdbOptions());
     const data = await response.json();
     res.json(data);
@@ -79,5 +86,4 @@ app.get("/search", async (req, res) => {
   }
 });
 
-const PORT = 3333;
-app.listen(PORT, () => console.log(`Backend fut: http://localhost:${PORT}`));
+module.exports = app;

@@ -3,7 +3,7 @@ import React from "react";
 import { ContentPagination } from "./ContentPagination";
 import { Genres } from "./Genres";
 
-export const PageLayout = ({ title, page, setPage, type = "movie", selectedGenres, setSelectedGenres, children }) => {
+export const PageLayout = ({ title, page, setPage, type = "movie", selectedGenres, setSelectedGenres, children, hideGenres }) => {
   return (
     <Container
       maxWidth={false}
@@ -30,9 +30,11 @@ export const PageLayout = ({ title, page, setPage, type = "movie", selectedGenre
         {title}
       </Typography>
 
-      <Box sx={{ mt: 2 }}>
-        <Genres type={type} selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres} />
-      </Box>
+      {!hideGenres && selectedGenres && setSelectedGenres && (
+        <Box sx={{ mt: 2 }}>
+          <Genres type={type} selectedGenres={selectedGenres} setSelectedGenres={setSelectedGenres} />
+        </Box>
+      )}
 
       <Box sx={{ mt: 2 }}>{children}</Box>
 
