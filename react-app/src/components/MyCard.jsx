@@ -26,18 +26,28 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export const MyCard = ({ backdrop_path, title, overview, release_date, vote_average }) => {
+export const MyCard = ({
+  backdrop_path,
+  title,
+  overview,
+  release_date,
+  first_air_date,
+  vote_average,
+  genre_ids
+}) => {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
+  const release = release_date || first_air_date || "Unknown";
+
   return (
     <Card sx={{ maxWidth: 345, margin: 2, borderRadius: '16px', boxShadow: 3 }}>
       <CardHeader
         title={title}
-        subheader={`Release: ${release_date || first_air_date || "Unknown"}`}
+        subheader={`Release: ${release}`}
       />
 
       <CardMedia
@@ -78,8 +88,16 @@ export const MyCard = ({ backdrop_path, title, overview, release_date, vote_aver
         <CardContent>
           <Typography paragraph>Description:</Typography>
           <Typography paragraph>{overview}</Typography>
+
+          <Typography paragraph>
+            Genres: {genre_ids?.join(', ')}
+          </Typography>
+          <Typography paragraph>
+            Release date: {release}
+          </Typography>
         </CardContent>
       </Collapse>
     </Card>
   );
 };
+

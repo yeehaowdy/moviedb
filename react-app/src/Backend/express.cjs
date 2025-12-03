@@ -1,56 +1,47 @@
 const express = require("express");
 const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const cors = require("cors");
-const path = require("path");
-
-// TMDB metadata import
-const metadata = require(path.resolve(__dirname, "../../tmdb-metadata.cjs"));
+const metadata = require("../../tmdb-metadata.cjs");
 
 const app = express();
 app.use(cors());
 
-// Bearer token inicializálása
 let TMDB_BEARER = null;
 
+// Betölti a Bearer tokent a tmdb-metadata.cjs-ből
 async function initTmdb() {
-  try {
-    const result = await metadata.handler();
-    if (result.error) {
-      console.error("TMDB metadata error:", result.error);
-      return;
-    }
-    TMDB_BEARER = `Bearer ${result.apiKey}`;
-    console.log("✅ TMDB Bearer betöltve:", TMDB_BEARER.substring(0, 20) + "...");
-  } catch (err) {
-    console.error("TMDB init error:", err);
+  const result = await metadata.handler();
+  if (result.error) {
+    console.error("TMDB metadata error:", result.error);
+    return;
   }
+  TMDB_BEARER = `Bearer ${result.apiKey}`;
+  console.log("✅ TMDB Bearer betöltve:", TMDB_BEARER.substring(0, 20) + "...");
 }
 
-// Backend indulásakor lekérjük a TMDB tokent
-initTmdb();
+// Middleware, ami biztosítja, hogy a Bearer betöltve legyen
+app.use(async (req, res, next) => {
+  if (!TMDB_BEARER) {
+    await initTmdb();
+  }
+  next();
+});
 
-// Segédfüggvény a TMDB fetch hívásokhoz
 function getTmdbOptions() {
   return {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: TMDB_BEARER,
-    },
+      Authorization: TMDB_BEARER
+    }
   };
 }
 
-// Műfajok lekérése
+// Genres lekérése
 app.get("/genres", async (req, res) => {
-  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
-
   const type = req.query.type || "movie";
-
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/genre/${type}/list?language=en`,
-      getTmdbOptions()
-    );
+    const response = await fetch(`https://api.themoviedb.org/3/genre/${type}/list?language=en`, getTmdbOptions());
     const data = await response.json();
     res.json(data.genres);
   } catch (err) {
@@ -59,26 +50,13 @@ app.get("/genres", async (req, res) => {
   }
 });
 
-// Filmek / sorozatok lekérése (discover + search)
+// Movies / TV lekérése
 app.get("/movies", async (req, res) => {
-  if (!TMDB_BEARER) return res.status(500).json({ error: "TMDB Bearer not loaded" });
-
-  const type = req.query.type || "movie"; // movie / tv
+  const type = req.query.type || "movie";
   const page = req.query.page || 1;
   const genres = req.query.genres || "";
-  const query = req.query.query || "";
 
-  let url;
-
-  if (query) {
-    // Keresés endpoint
-    url = `https://api.themoviedb.org/3/search/${type}?query=${encodeURIComponent(
-      query
-    )}&page=${page}&include_adult=false`;
-  } else {
-    // Discover endpoint
-    url = `https://api.themoviedb.org/3/discover/${type}?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc&page=${page}&with_genres=${genres}`;
-  }
+  const url = `https://api.themoviedb.org/3/discover/${type}?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc&page=${page}&with_genres=${genres}`;
 
   try {
     const response = await fetch(url, getTmdbOptions());
@@ -90,7 +68,21 @@ app.get("/movies", async (req, res) => {
   }
 });
 
-const PORT = 3333;
-app.listen(PORT, () => {
-  console.log(`Backend fut: http://localhost:${PORT}`);
+// Search (title alapján)
+app.get("/search", async (req, res) => {
+  const query = req.query.query || "";
+  const page = req.query.page || 1;
+
+  try {
+    const url = `https://api.themoviedb.org/3/search/movie?language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
+    const response = await fetch(url, getTmdbOptions());
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error("Search fetch error:", err);
+    res.status(500).json({ error: "Search fetch failed" });
+  }
 });
+
+const PORT = 3333;
+app.listen(PORT, () => console.log(`Backend fut: http://localhost:${PORT}`));
