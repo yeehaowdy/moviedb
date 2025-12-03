@@ -1,7 +1,7 @@
 import React from 'react';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-import { logAction } from '../Backend/logAction';
+import { logAction } from '../Backend/logAction.js';
 
 export const ContentPagination = ({ page, setPage }) => {
   const handleChange = (event, value) => {
