@@ -5,7 +5,7 @@ import { MyBottomNav } from './MyBottomNav'
 export const MyLayout = () => {
   return (
     <>
-      <Outlet/>{/*ide kerül minden oldal */}
+      <Outlet/>
       <MyBottomNav/>
     </>
   )
