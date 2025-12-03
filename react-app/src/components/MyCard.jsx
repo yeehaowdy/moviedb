@@ -37,7 +37,7 @@ export const MyCard = ({ backdrop_path, title, overview, release_date, vote_aver
     <Card sx={{ maxWidth: 345, margin: 2, borderRadius: '16px', boxShadow: 3 }}>
       <CardHeader
         title={title}
-        subheader={`Release: ${release_date || 'Unknown'}`}
+        subheader={`Release: ${release_date || first_air_date || "Unknown"}`}
       />
 
       <CardMedia

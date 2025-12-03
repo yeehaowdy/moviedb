@@ -9,10 +9,8 @@ export const SingleChip = ({ id, name, selectedGenres = [], setSelectedGenres })
 
     const handleClick = () => {
         if (isSelected) {
-            // eltávolítás
             setSelectedGenres(prev => prev.filter(g => g !== id));
         } else {
-            // hozzáadás
             setSelectedGenres(prev => [...prev, id]);
         }
     };
@@ -20,20 +18,29 @@ export const SingleChip = ({ id, name, selectedGenres = [], setSelectedGenres })
     return (
         <Stack direction="row" spacing={1} sx={{ padding: '5px' }}>
             <Chip
-                label={name}
-                onClick={handleClick}
-                icon={
+                  label={name}
+                  onClick={handleClick}
+                  icon={
                     isSelected
-                        ? <MdOutlineRadioButtonChecked size={20} />
-                        : <MdOutlineRadioButtonUnchecked size={20} />
-                }
-                variant={isSelected ? "filled" : "outlined"}
-                color={isSelected ? "primary" : "default"}
-                sx={{
+                      ? <MdOutlineRadioButtonChecked size={20} />
+                      : <MdOutlineRadioButtonUnchecked size={20} />
+                  }
+                  variant="filled"
+                  color="primary"
+                  sx={{
                     cursor: "pointer",
                     fontSize: "14px",
-                }}
+                    color: "white",          
+                    background: isSelected 
+                      ? "#0284c7"            
+                      : "#334155",           
+                    border: "1px solid #475569",
+                    "&:hover": {
+                      background: isSelected ? "#0369a1" : "#475569",
+                    }
+                  }}
             />
+
         </Stack>
     );
 };
