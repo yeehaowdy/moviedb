@@ -8,7 +8,6 @@ app.use(cors());
 
 let TMDB_BEARER = null;
 
-// Betölti a Bearer tokent a tmdb-metadata.cjs-ből
 async function initTmdb() {
   const result = await metadata.handler();
   if (result.error) {
@@ -19,7 +18,6 @@ async function initTmdb() {
   console.log("✅ TMDB Bearer betöltve:", TMDB_BEARER.substring(0, 20) + "...");
 }
 
-// Middleware, ami biztosítja, hogy a Bearer betöltve legyen
 app.use(async (req, res, next) => {
   if (!TMDB_BEARER) {
     await initTmdb();
@@ -37,7 +35,6 @@ function getTmdbOptions() {
   };
 }
 
-// Genres lekérése
 app.get("/genres", async (req, res) => {
   const type = req.query.type || "movie";
   try {
@@ -50,7 +47,6 @@ app.get("/genres", async (req, res) => {
   }
 });
 
-// Movies / TV lekérése
 app.get("/movies", async (req, res) => {
   const type = req.query.type || "movie";
   const page = req.query.page || 1;
@@ -68,7 +64,6 @@ app.get("/movies", async (req, res) => {
   }
 });
 
-// Search (title alapján)
 app.get("/search", async (req, res) => {
   const query = req.query.query || "";
   const page = req.query.page || 1;

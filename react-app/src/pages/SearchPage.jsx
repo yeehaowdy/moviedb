@@ -8,12 +8,10 @@ const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:3333";
 
 export const SearchPage = () => {
   const [page, setPage] = useState(1);
-  const [selectedGenres, setSelectedGenres] = useState([]);
   const [data, setData] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Backendből való betöltés
   const fetchMovies = async (query = "") => {
     setLoading(true);
     try {
@@ -22,14 +20,15 @@ export const SearchPage = () => {
         : `${BACKEND}/movies?type=movie&page=${page}&genres=`;
       const resp = await fetch(url);
       const json = await resp.json();
+
       if (json.results) {
-        // ABC sorrend
         json.results.sort((a, b) => {
           const titleA = (a.title || a.name || "").toLowerCase();
           const titleB = (b.title || b.name || "").toLowerCase();
           return titleA.localeCompare(titleB);
         });
       }
+
       setData(json);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -39,12 +38,11 @@ export const SearchPage = () => {
     }
   };
 
-  // Alap betöltés
   useEffect(() => {
     fetchMovies();
   }, [page]);
 
-  // Keresés
+
   useEffect(() => {
     fetchMovies(searchQuery);
   }, [searchQuery, page]);
@@ -54,8 +52,6 @@ export const SearchPage = () => {
       title="Search Movies"
       page={page}
       setPage={setPage}
-      selectedGenres={selectedGenres}
-      setSelectedGenres={setSelectedGenres}
     >
       <input
         type="text"

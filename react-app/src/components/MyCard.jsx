@@ -33,21 +33,21 @@ export const MyCard = ({
   release_date,
   first_air_date,
   vote_average,
-  genre_ids
 }) => {
+  // minden kártyának saját expanded state
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const release = release_date || first_air_date || "Unknown";
+  const displayDate = release_date || first_air_date || "Unknown";
 
   return (
     <Card sx={{ maxWidth: 345, margin: 2, borderRadius: '16px', boxShadow: 3 }}>
       <CardHeader
         title={title}
-        subheader={`Release: ${release}`}
+        subheader={`Release: ${displayDate}`}
       />
 
       <CardMedia
@@ -75,7 +75,7 @@ export const MyCard = ({
           <ShareIcon />
         </IconButton>
         <ExpandMore
-          expand={expanded ? 'true' : undefined}
+          expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"
@@ -88,16 +88,8 @@ export const MyCard = ({
         <CardContent>
           <Typography paragraph>Description:</Typography>
           <Typography paragraph>{overview}</Typography>
-
-          <Typography paragraph>
-            Genres: {genre_ids?.join(', ')}
-          </Typography>
-          <Typography paragraph>
-            Release date: {release}
-          </Typography>
         </CardContent>
       </Collapse>
     </Card>
   );
 };
-
