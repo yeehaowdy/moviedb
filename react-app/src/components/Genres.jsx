@@ -1,30 +1,31 @@
-import React, { useEffect, useState } from 'react'
-import { getGenres } from '../../utils.js'
+import React from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { getGenres } from '../../utils'
 import { Stack } from '@mui/material'
 import { SingleChip } from './SingleChip'
 
 export const Genres = ({ type, selectedGenres, setSelectedGenres }) => {
-    const [data, setData] = useState(null)
 
-    useEffect(() => {
-        getGenres(type).then(result => {
-            setData(result)    
-        })
-    }, [type])
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['genres', type],
+        queryFn: getGenres
+    });
+
+    if (isLoading) return <p>Loading genres...</p>;
+    if (error) return <p>Error loading genres</p>;
 
     return (
         <Stack direction='row' flexWrap='wrap' justifyContent='center'>
-            {data &&
-                data.genres.map(genreObj => (
-                    <SingleChip
-                        key={genreObj.id}
-                        id={genreObj.id}
-                        name={genreObj.name}
-                        selectedGenres={selectedGenres}
-                        setSelectedGenres={setSelectedGenres}
-                    />
-                ))
-            }
+            {data.genres.map(obj =>
+                <SingleChip
+                  key={obj.id}
+                  id={obj.id}
+                  name={obj.name}
+                  selectedGenres={selectedGenres}
+                  setSelectedGenres={setSelectedGenres}
+                />
+
+            )}
         </Stack>
-    )
-}
+    );
+};

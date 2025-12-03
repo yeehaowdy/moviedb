@@ -1,4 +1,3 @@
-// Movies.jsx
 import React, { useEffect, useState } from "react";
 import { PageLayout } from "../components/PageLayout";
 import { Grid } from "@mui/material";

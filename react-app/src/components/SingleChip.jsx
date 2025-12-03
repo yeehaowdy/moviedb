@@ -1,22 +1,19 @@
 import * as React from 'react';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
-import { useState } from 'react';
 import { MdOutlineRadioButtonChecked, MdOutlineRadioButtonUnchecked } from "react-icons/md";
 
-export const SingleChip = ({ id, name, selectedGenres, setSelectedGenres }) => {
-    const isAlreadySelected = selectedGenres.includes(id);
-    const [isSelected, setIsSelected] = useState(isAlreadySelected);
+export const SingleChip = ({ id, name, selectedGenres = [], setSelectedGenres }) => {
+
+    const isSelected = selectedGenres.includes(id);
 
     const handleClick = () => {
-        setIsSelected(!isSelected);
-
-        if (!isSelected) {
+        if (isSelected) {
+            // eltávolítás
+            setSelectedGenres(prev => prev.filter(g => g !== id));
+        } else {
             // hozzáadás
             setSelectedGenres(prev => [...prev, id]);
-        } else {
-            // eltávolítás
-            setSelectedGenres(prev => prev.filter(item => item !== id));
         }
     };
 
@@ -40,4 +37,3 @@ export const SingleChip = ({ id, name, selectedGenres, setSelectedGenres }) => {
         </Stack>
     );
 };
-
